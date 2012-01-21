@@ -2,6 +2,7 @@ package com.example;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -12,17 +13,27 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     int mRed;
     int mGreen;
     int mBlue = 127;
-    
+    float[] mVertices = new float[6];
+    int[] mColors = new int[]{0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000};
+    Paint mPaint = new Paint(); 
+    float mAngle = 10;
+    float ROTATION_SPEED = 30;
+    float mCenterX = 0;
+    float mCenterY = 0;
     public ExampleSurfaceView(Context context) {
         super(context);
         mSurfaceHolder = getHolder();
         mSurfaceHolder.addCallback(this);
         mThread = new DrawingThread();
+        mPaint.setColor(0xFF00FF00);
+        mPaint.setStyle(Paint.Style.FILL);
     }
     
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawRGB(mRed, mGreen, mBlue);
+        canvas.rotate(mAngle, mCenterX, mCenterY);
+        canvas.drawVertices(Canvas.VertexMode.TRIANGLES, 6, mVertices, 0, null, 0, mColors, 0, null, 0, 0, mPaint);
     }
     
     @Override
@@ -39,9 +50,17 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         return super.onTouchEvent(event);
     }
 
+
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-            int height) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        mVertices[0] = width/2;
+        mVertices[1] = height/2;
+        mVertices[2] = width/2 + width/5;
+        mVertices[3] = height/2 + width/5;
+        mVertices[4] = width/2;
+        mVertices[5] = height/2 + width/5;
+        mCenterX = width/2 + width/10;
+        mCenterY = height/2 + width/10;
     }
 
     @Override
@@ -64,6 +83,15 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     
     private class DrawingThread extends Thread {
         boolean keepRunning = true;
+        long mLastFrameTime = 0;
+        public void updateAngle() {
+            long now = System.currentTimeMillis();
+            if(mLastFrameTime != 0) {
+                //Rotate 10 degree per second
+                mAngle += ROTATION_SPEED * (now-mLastFrameTime)/1000.0;
+            }
+            mLastFrameTime = now;
+        }
         
         @Override
         public void run() {
@@ -74,12 +102,18 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 try {
                     c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
+                        updateAngle();
                         onDraw(c);
                     }
                 } finally {
                     if (c != null)
                         mSurfaceHolder.unlockCanvasAndPost(c);
                 }
+
+                // Run the draw loop at 50FPS
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {}
             }
         }
     }

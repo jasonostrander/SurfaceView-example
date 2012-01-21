@@ -15,7 +15,9 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     int mBlue = 127;
     
     float[] mVertices = new float[6];
-    int[] mColors = new int[]{0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000};
+    int[] mColors = {
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
     Paint mPaint = new Paint(); 
     float mAngle = 0;
     float mCenterX = 0;
@@ -26,7 +28,7 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         mSurfaceHolder = getHolder();
         mSurfaceHolder.addCallback(this);
         mThread = new DrawingThread();
-        mPaint.setColor(0xFF00FF00);
+        mPaint.setColor(0xFFFFFFFF);
         mPaint.setStyle(Paint.Style.FILL);
     }
     

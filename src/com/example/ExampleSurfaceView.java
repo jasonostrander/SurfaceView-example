@@ -10,16 +10,17 @@ import android.view.SurfaceView;
 public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     SurfaceHolder mSurfaceHolder;
     DrawingThread mThread;
-    int mRed;
-    int mGreen;
+    int mRed = 0;
+    int mGreen = 0;
     int mBlue = 127;
+    
     float[] mVertices = new float[6];
     int[] mColors = new int[]{0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFF000000, 0xFF000000, 0xFF000000};
     Paint mPaint = new Paint(); 
-    float mAngle = 10;
-    float ROTATION_SPEED = 30;
+    float mAngle = 0;
     float mCenterX = 0;
     float mCenterY = 0;
+    
     public ExampleSurfaceView(Context context) {
         super(context);
         mSurfaceHolder = getHolder();
@@ -83,16 +84,7 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     
     private class DrawingThread extends Thread {
         boolean keepRunning = true;
-        long mLastFrameTime = 0;
-        public void updateAngle() {
-            long now = System.currentTimeMillis();
-            if(mLastFrameTime != 0) {
-                //Rotate 10 degree per second
-                mAngle += ROTATION_SPEED * (now-mLastFrameTime)/1000.0;
-            }
-            mLastFrameTime = now;
-        }
-        
+
         @Override
         public void run() {
             Canvas c;
@@ -102,7 +94,7 @@ public class ExampleSurfaceView extends SurfaceView implements SurfaceHolder.Cal
                 try {
                     c = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
-                        updateAngle();
+                        mAngle += 1;
                         onDraw(c);
                     }
                 } finally {
